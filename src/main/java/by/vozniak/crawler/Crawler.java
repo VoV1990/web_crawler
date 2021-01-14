@@ -28,22 +28,23 @@ public class Crawler {
     private static final int MAX_PAGES_QUANTITY = 10000;
     private static final int MAX_DEPTH = 8;
     private static Set<String> visitedPages = new HashSet<>();
+    private static Map<String, Integer> pagesToBrowse = new LinkedHashMap<>();
     private static List<String> termsForSearch;
     private static String textFromHtml;
-    private static final String USER_AGENT = "Mozilla Firefox 36 (Win 8.1 x64): Mozilla/5.0 (Windows NT 6.3; " +
-            "WOW64; rv:36.0) Gecko/20100101 Firefox/36.0";
+    private static final String USER_AGENT = "Google Chrome 53 (Win 10 x64): Mozilla/5.0 (Windows NT 10.0; WOW64) " +
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36";
     private static final Logger logger = Logger.getLogger(Crawler.class.getName());
 
     /**
      *The method uses Jsoup to connect to the page, load its content,
-     * and recursively call itself until the maximum depth or maximum number of pages is reached
+     * and calls the crawlPages method which iterates through LinkedHashMap and calls the method again
      * @param url - URL of web page
      * @param depth - current depth from the start page
      */
     private static void getPageContent(String url, int depth) {
         Document htmlDoc;
         Elements links;
-        if(visitedPages.size() < MAX_PAGES_QUANTITY && depth < MAX_DEPTH) {
+        if(visitedPages.size() < MAX_PAGES_QUANTITY) {
             try {
                 try {
                     System.out.println("URL: " + url);
@@ -53,18 +54,33 @@ public class Crawler {
                     textFromHtml = htmlDoc.body().text();
                     searchWord(url);
                     visitedPages.add(url);
+                    if(!pagesToBrowse.isEmpty())
+                        pagesToBrowse.remove(url);
                     ++depth;
                     for (Element link : links) {
                         String absUrl = link.absUrl("href");
                         if(!visitedPages.contains(absUrl))
-                            getPageContent(absUrl, depth);
+                            pagesToBrowse.put(absUrl, depth);
                     }
+                    crawlPages();
                 } catch (HttpStatusException | MalformedURLException ex) {
                     logger.log(Level.WARNING, "Exception: ", ex);
                 }
             } catch (IOException e) {
                 logger.log(Level.WARNING, "Exception: ", e);
             }
+        }
+    }
+
+    /**
+     *The method iterates through LinkedHashMap and calls the method getPageContent().
+     */
+    private static void crawlPages() {
+        for (Map.Entry<String, Integer> entry : pagesToBrowse.entrySet()) {
+            String url = entry.getKey();
+            int depth = entry.getValue();
+            if(depth < MAX_DEPTH)
+                getPageContent(url, depth);
         }
     }
 
