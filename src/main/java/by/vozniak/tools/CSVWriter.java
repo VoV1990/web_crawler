@@ -95,4 +95,12 @@ public class CSVWriter {
         String[]array = columns.toArray(new String[0]);
         header = CSVFormat.DEFAULT.withHeader(array);
     }
+
+    public static BufferedWriter getWriter() {
+        return writer;
+    }
+
+    public static CSVPrinter getCsvPrinter() {
+        return csvPrinter;
+    }
 }

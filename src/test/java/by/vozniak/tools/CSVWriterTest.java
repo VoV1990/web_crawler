@@ -44,6 +44,16 @@ public class CSVWriterTest {
     }
 
     @Test
+    public void testGetWriter() {
+        assertNotNull(CSVWriter.getWriter());
+    }
+
+    @Test
+    public void testGetReader() {
+        assertNotNull(CSVWriter.getCsvPrinter());
+    }
+
+    @Test
     public void testWrite() {
         List<String> terms = new ArrayList<>();
         terms.add("Term1");

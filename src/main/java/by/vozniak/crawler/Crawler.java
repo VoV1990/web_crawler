@@ -26,7 +26,7 @@ import java.util.logging.Logger;
  */
 public class Crawler {
     private static final int MAX_PAGES_QUANTITY = 10000;
-    private static final int MAX_DEPTH = 8;
+    private static int MAX_DEPTH = 8;
     private static Set<String> visitedPages = new HashSet<>();
     private static Map<String, Integer> pagesToBrowse = new LinkedHashMap<>();
     private static List<String> termsForSearch;
@@ -41,31 +41,27 @@ public class Crawler {
      * @param url - URL of web page
      * @param depth - current depth from the start page
      */
-    private static void getPageContent(String url, int depth) {
+    public static void getPageContent(String url, int depth) {
         Document htmlDoc;
         Elements links;
         if(visitedPages.size() < MAX_PAGES_QUANTITY) {
             try {
-                try {
-                    System.out.println("URL: " + url);
-                    System.out.println("depth: " + depth);
-                    htmlDoc = Jsoup.connect(url).userAgent(USER_AGENT).get();
-                    links = htmlDoc.select("a[href]");
-                    textFromHtml = htmlDoc.body().text();
-                    searchWord(url);
-                    visitedPages.add(url);
-                    if(!pagesToBrowse.isEmpty())
-                        pagesToBrowse.remove(url);
-                    ++depth;
-                    for (Element link : links) {
-                        String absUrl = link.absUrl("href");
-                        if(!visitedPages.contains(absUrl))
-                            pagesToBrowse.put(absUrl, depth);
-                    }
-                    crawlPages();
-                } catch (HttpStatusException | MalformedURLException ex) {
-                    logger.log(Level.WARNING, "Exception: ", ex);
+                System.out.println("URL: " + url);
+                System.out.println("depth: " + depth);
+                htmlDoc = Jsoup.connect(url).userAgent(USER_AGENT).get();
+                links = htmlDoc.select("a[href]");
+                textFromHtml = htmlDoc.body().text();
+                searchWord(url);
+                visitedPages.add(url);
+                if(!pagesToBrowse.isEmpty())
+                    pagesToBrowse.remove(url);
+                ++depth;
+                for (Element link : links) {
+                    String absUrl = link.absUrl("href");
+                    if(!visitedPages.contains(absUrl))
+                        pagesToBrowse.put(absUrl, depth);
                 }
+                crawlPages();
             } catch (IOException e) {
                 logger.log(Level.WARNING, "Exception: ", e);
             }
@@ -113,6 +109,38 @@ public class Crawler {
      */
     public static Logger getLogger() {
         return logger;
+    }
+
+    public static String getUserAgent() {
+        return USER_AGENT;
+    }
+
+    public static Set<String> getVisitedPages() {
+        return visitedPages;
+    }
+
+    public static List<String> getTermsForSearch() {
+        return termsForSearch;
+    }
+
+    public static int getMaxPagesQuantity() {
+        return MAX_PAGES_QUANTITY;
+    }
+
+    public static int getMaxDepth() {
+        return MAX_DEPTH;
+    }
+
+    public static Map<String, Integer> getPagesToBrowse() {
+        return pagesToBrowse;
+    }
+
+    public static void setTermsForSearch(List<String> termsForSearch) {
+        Crawler.termsForSearch = termsForSearch;
+    }
+
+    public static void setMaxDepth(int maxDepth) {
+        MAX_DEPTH = maxDepth;
     }
 
     public static void main(String[] args) {

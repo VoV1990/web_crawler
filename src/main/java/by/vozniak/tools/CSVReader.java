@@ -56,10 +56,11 @@ public class CSVReader {
     private void transferToWriter() {
         CSVWriter.setPathToCSV(path + "top10.csv");
         List<String> top10 = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        if(!statistic.isEmpty())
+            for (int i = 0; i < 10; i++) {
             top10.addAll(Arrays.asList(statistic.get(i)));
             CSVWriter.write(top10);
             top10 = new ArrayList<>();
-        }
+            }
     }
 }
